@@ -6,13 +6,22 @@ pool:
 
 variables:
   imageName: node-app
+  acrName: poc10acr.azurecr.io
 
 steps:
-- task: Docker@2
+
+- task: AzureCLI@2
   inputs:
-    containerRegistry: 'azure-service-conn'
-    repository: '$(imageName)'
-    command: 'buildAndPush'
-    Dockerfile: 'app/Dockerfile'
-    tags: |
-      latest
+    azureSubscription: 'azure-service-conn'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az acr login --name poc10acr
+
+- script: |
+    docker build -t $(acrName)/$(imageName):latest app/
+  displayName: 'Build Docker Image'
+
+- script: |
+    docker push $(acrName)/$(imageName):latest
+  displayName: 'Push Docker Image'
