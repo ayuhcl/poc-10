@@ -7,6 +7,8 @@ pool:
 variables:
   imageName: node-app
   acrName: poc10acr.azurecr.io
+  resourceGroup: poc-10-rg
+  aksCluster: poc10-aks
 
 steps:
 
@@ -20,8 +22,24 @@ steps:
 
 - script: |
     docker build -t $(acrName)/$(imageName):latest app/
-  displayName: 'Build Docker Image'
+  displayName: "Build Image"
 
 - script: |
     docker push $(acrName)/$(imageName):latest
-  displayName: 'Push Docker Image'
+  displayName: "Push Image"
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'azure-service-conn'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az aks get-credentials \
+        --resource-group $(resourceGroup) \
+        --name $(aksCluster) \
+        --overwrite-existing
+
+- script: |
+    kubectl apply -f k8s/deployment.yaml
+    kubectl apply -f k8s/service.yaml
+  displayName: "Deploy to AKS"
