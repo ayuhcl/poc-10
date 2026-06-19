@@ -1,12 +1,11 @@
 trigger:
 - main
 
-variables:
-  acrName: poc10acr
-  imageName: myapp
-
 pool:
   vmImage: 'ubuntu-latest'
+
+variables:
+  imageName: node-app
 
 steps:
 - task: Docker@2
@@ -14,6 +13,6 @@ steps:
     containerRegistry: 'azure-service-conn'
     repository: '$(imageName)'
     command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
+    Dockerfile: 'app/Dockerfile'
     tags: |
       latest
