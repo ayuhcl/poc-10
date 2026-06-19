@@ -1,5 +1,7 @@
-FROM python:3.9
+FROM node:18
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
-RUN pip install flask
-CMD ["python", "app.py"]
+EXPOSE 80
+CMD ["node", "index.js"]
